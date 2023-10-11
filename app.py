@@ -5,7 +5,7 @@ import openai
 # Set your OpenAI API key here
 openai.api_key = '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'
 
-@st.cache_data(suppress_st_warning=True)
+@st.cache_data()
 def convert_voice_to_text():
     recognizer = sr.Recognizer()
     with sr.Microphone() as source:
@@ -45,7 +45,7 @@ def story_generator():
     # Style and tone selection
     style_tone = st.selectbox("Select Style/Tone:", ["Neutral", "Formal", "Humorous", "Mysterious", "Romantic"])
 
-    @st.cache_data(suppress_st_warning=True)
+    @st.cache_data()
     def generate_story():
         if user_input:
             if use_voice and voice_input:
