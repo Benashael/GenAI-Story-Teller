@@ -3,7 +3,7 @@ import speech_recognition as sr
 import openai
 
 # Set your OpenAI API key here
-openai.api_key = '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'
+openai.api_key = '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'
 
 @st.cache_data()
 def convert_voice_to_text():
