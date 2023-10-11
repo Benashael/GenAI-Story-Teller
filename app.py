@@ -1,95 +1,51 @@
 import streamlit as st
-import speech_recognition as sr
-import openai
+from transformers import AutoModelForCausalLM, AutoTokenizer
 
-# Set your OpenAI API key here
-openai.api_key = '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'
+st.title("GenAI Storyteller")
+
+# Load the pre-trained model and tokenizer
+model_name = "mosaicml/mpt-7b-storywriter"
+model = AutoModelForCausalLM.from_pretrained(model_name)
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+
+# Input text to generate a story
+user_input = st.text_area("Enter a text prompt for the story:")
+
+# Maximum word length for the generated story
+max_word_length = st.slider("Maximum Word Length for Story", min_value=50, max_value=500, value=250)
+
+# Number of story continuations to generate
+num_continuations = st.slider("Number of Story Continuations", min_value=1, max_value=5, value=1)
 
 @st.cache_data()
-def convert_voice_to_text():
-    recognizer = sr.Recognizer()
-    with sr.Microphone() as source:
-        st.write("Listening...")
-        audio = recognizer.listen(source)
-        st.write("Recording complete.")
+def generate_stories(prompt, num_continuations, max_word_length):
+    generated_stories = []
+    for _ in range(num_continuations):
+        input_ids = tokenizer.encode(prompt, return_tensors="pt", max_length=100, truncation=True)
+        generated_story = model.generate(input_ids, max_length=max_word_length * 5, num_return_sequences=1, no_repeat_ngram_size=2)
+        generated_text = tokenizer.decode(generated_story[0], skip_special_tokens=True)
+        # Trim the generated story to the specified word length
+        generated_text = " ".join(generated_text.split()[:max_word_length])
+        generated_stories.append(generated_text)
+    return generated_stories
 
-    try:
-        voice_input = recognizer.recognize_google(audio)
-    except sr.UnknownValueError:
-        st.write("Voice input not understood")
-    except sr.RequestError as e:
-        st.write(f"Could not request results for voice input; {e}")
-    
-    return voice_input
-
-def story_generator():
-    st.title("GenAI Storyteller")
-
-    # Input text to generate a story
-    user_input = st.text_area("Enter a text prompt for the story:")
-
-    # Input field for genre
-    genre = st.selectbox("Select the story genre:", ["Fantasy", "Science Fiction", "Mystery", "Romance", "Other"])
-
-    # Option to use voice input
-    use_voice = st.checkbox("Use voice input")
-
-    if use_voice:
-        voice_input = convert_voice_to_text()
-        if voice_input:
-            st.write("Voice input: " + voice_input)
-
-    # Story length slider
-    story_length = st.slider("Select Story Length (Tokens)", min_value=10, max_value=500, value=100)
-
-    # Style and tone selection
-    style_tone = st.selectbox("Select Style/Tone:", ["Neutral", "Formal", "Humorous", "Mysterious", "Romantic"])
-
-    @st.cache_data()
-    def generate_story():
-        if user_input:
-            if use_voice and voice_input:
-                # Include the selected genre and voice input in the prompt
-                prompt = f"Write me a {genre.lower()} story: {voice_input}"
-            else:
-                # Include the selected genre and text input in the prompt
-                prompt = f"Write me a {genre.lower()} story: {user_input}"
-
-            # Customize the prompt based on style/tone
-            if style_tone != "Neutral":
-                prompt = f"{style_tone} tone: {prompt}"
-
-            # Use GPT-3 to generate the story
-            response = openai.Completion.create(
-                engine="text-davinci-002",
-                prompt=prompt,
-                max_tokens=story_length,
-            )
-            generated_story = response.choices[0].text
-            return generated_story
-
-    if st.button("Generate Story"):
-        generated_story = generate_story()
-        st.write("Generated Story:")
-        st.write(generated_story)
+if st.button("Generate Story"):
+    if user_input:
+        generated_stories = generate_stories(user_input, num_continuations, max_word_length)
+        # Display the generated stories
+        for i, story in enumerate(generated_stories):
+            st.subheader(f"Story {i+1}")
+            st.write(story)
     else:
-        st.warning("Please enter a prompt to generate a story")
+        st.warning("Please enter a prompt to generate a story.")
 
-def about():
-    st.title("About GenAI Storyteller")
-    st.write("GenAI Storyteller is a Streamlit app that allows you to generate stories using OpenAI's GPT-3.")
-    st.write("To use the app:")
-    st.write("1. Select 'Story Generator' from the top menu.")
-    st.write("2. Enter a text prompt or choose 'Use voice input' to speak your prompt.")
-    st.write("3. Select the story genre, style/tone, and story length.")
-    st.write("4. Click 'Generate Story' to create a story based on your input.")
-    st.write("Feel free to experiment and enjoy generating unique stories!")
-
-# Main app
-st.title("GenAI Storyteller")
-selected_page = st.selectbox("Menu", ["Story Generator", "About"])
-
-if selected_page == "Story Generator":
-    story_generator()
-elif selected_page == "About":
-    about()
+if st.button("Save Story"):
+    # Save the generated story to a text file
+    if generated_stories:
+        with open("generated_story.txt", "w") as file:
+            file.write(f"Maximum Word Length: {max_word_length}\n\n")
+            for i, story in enumerate(generated_stories):
+                file.write(f"Story {i+1}:\n")
+                file.write(story)
+                file.write("\n\n")
+        st.success("Story saved to 'generated_story.txt'")
