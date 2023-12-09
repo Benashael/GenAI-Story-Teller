@@ -24,6 +24,8 @@ def generate_stories(api_key, genre, tone, max_words, prompt, num_stories, purpo
         #print(f"OpenAI API Error: {e}")
         #return [f"Error: {str(e)}"] * num_stories
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         print(f"An unexpected error occurred: {e}")
         return [f"Error: An unexpected error occurred."] * num_stories
 
