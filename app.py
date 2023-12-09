@@ -1,5 +1,6 @@
 import streamlit as st
 import openai
+import os
 
 # Function to generate stories based on user inputs
 def generate_stories(api_key, genre, tone, max_words, prompt, num_stories, purpose):
@@ -30,7 +31,8 @@ def generate_stories(api_key, genre, tone, max_words, prompt, num_stories, purpo
 st.title("GenAI Story Teller")
 
 # User inputs
-api_key = st.text_input("Enter OpenAI API Key:")
+API_KEY = st.text_input("Enter OpenAI API Key:")
+api_key = os.environ.get(API_KEY)
 genre = st.selectbox("Select Genre:", ["Sci-Fi", "Mystery", "Fantasy", "Adventure", "Thriller", "Comedy"])
 tone = st.selectbox("Select Tone:", ["Positive", "Negative", "Neutral"])
 purpose = st.selectbox("Select Purpose:", ["Education", "Storytelling for Children", "Entertainment", "Inspiration"])
