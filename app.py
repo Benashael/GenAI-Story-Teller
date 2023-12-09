@@ -27,12 +27,14 @@ def generate_stories(api_key, genre, tone, max_words, prompt, num_stories, purpo
         print(f"An unexpected error occurred: {e}")
         return [f"Error: An unexpected error occurred."] * num_stories
 
+openai.api_key = os.getenv("OPENAI_API_KEY")
+
 # Streamlit app
 st.title("GenAI Story Teller")
 
 # User inputs
-API_KEY = st.text_input("Enter OpenAI API Key:")
-api_key = os.environ.get(API_KEY)
+api_key = st.text_input("Enter OpenAI API Key:", type="password")
+#api_key = os.environ.get(API_KEY)
 genre = st.selectbox("Select Genre:", ["Sci-Fi", "Mystery", "Fantasy", "Adventure", "Thriller", "Comedy"])
 tone = st.selectbox("Select Tone:", ["Positive", "Negative", "Neutral"])
 purpose = st.selectbox("Select Purpose:", ["Education", "Storytelling for Children", "Entertainment", "Inspiration"])
