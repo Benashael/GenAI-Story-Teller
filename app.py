@@ -9,7 +9,6 @@ def generate_stories(api_key, genre, tone, max_words, prompt, num_stories, purpo
     # Prompt engineering
     user_prompt = f"Write a {tone} {genre} story, up to {max_words} words: {prompt} for {purpose}"
     
-    # Generate stories using OpenAI GPT-3.5
     try:
         openai.api_key = api_key
         response = openai.Completion.create(
@@ -21,7 +20,11 @@ def generate_stories(api_key, genre, tone, max_words, prompt, num_stories, purpo
         )
         return [choice.text.strip() for choice in response.choices]
     except openai.error.OpenAIError as e:
+        print(f"OpenAI API Error: {e}")
         return [f"Error: {str(e)}"] * num_stories
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+        return [f"Error: An unexpected error occurred."] * num_stories
 
 # Streamlit app
 st.title("GenAI Story Teller")
