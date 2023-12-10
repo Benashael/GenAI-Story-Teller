@@ -30,7 +30,7 @@ def generate_stories(api_key, genre, tone, max_words, prompt, num_stories, purpo
         return [f"Error: An unexpected error occurred."] * num_stories
 
 #openai.api_key = os.getenv("OPENAI_API_KEY")
-openai.api_key = OpenAI(temperature=0.7, openai_api_key=os.getenv('OPENAI_API_KEY'))
+openai.api_key = openai.OpenAI(temperature=0.7, openai_api_key=os.getenv('OPENAI_API_KEY'))
 
 # Streamlit app
 st.title("GenAI Story Teller")
