@@ -12,7 +12,7 @@ def generate_stories(api_key, genre, tone, max_words, prompt, num_stories, purpo
     
     try:
         openai.api_key = api_key
-        response = openai.Completion.create(
+        response = openai.ChatCompletion.create(
             engine="text-davinci-003",
             prompt=user_prompt,
             max_tokens=max_words,
