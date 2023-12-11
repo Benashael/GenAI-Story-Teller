@@ -1,6 +1,6 @@
 import streamlit as st
 import openai
-from openai import Completion
+#from openai import Completion
 import os
 
 # Function to generate stories based on user inputs
@@ -13,7 +13,7 @@ def generate_stories(api_key, genre, tone, max_words, prompt, num_stories, purpo
     
     try:
         openai.api_key = api_key
-        response = openai.Completion.create(
+        response = openai.Answer.create(
             engine="text-davinci-003",
             prompt=user_prompt,
             max_tokens=max_words,
